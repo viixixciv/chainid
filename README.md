@@ -25,7 +25,7 @@ npm start
 ### Global Installation (Recommended)
 
 ```bash
-npm install -g chainid
+npm install -g @viixixciv/chainid
 chainid
 ```
 

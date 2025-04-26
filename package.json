@@ -1,5 +1,5 @@
 {
-  "name": "chainid",
+  "name": "@viixixciv/chainid",
   "version": "1.0.0",
   "description": "A tool to retrieve chainId from RPC nodes (HTTP/WebSocket)",
   "main": "index.js",
