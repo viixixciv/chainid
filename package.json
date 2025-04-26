@@ -4,10 +4,7 @@
   "description": "CLI tool to retrieve blockchain chainId from RPC endpoints (supports HTTP/WebSocket)",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "npm run lint && npm run test",
-    "lint": "eslint . || exit 0"
+    "start": "node index.js"
   },
   "keywords": [
     "rpc",
@@ -36,8 +33,5 @@
   "bugs": {
     "url": "https://github.com/viixixciv/chainid/issues"
   },
-  "homepage": "https://github.com/viixixciv/chainid#readme",
-  "publishConfig": {
-    "access": "public"
-  }
+  "homepage": "https://github.com/viixixciv/chainid#readme"
 }
