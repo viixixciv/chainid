@@ -45,16 +45,17 @@ ethereum-rpc.publicnode.com  # Auto-detects HTTP
 ## Sample Output
 
 ```bash
-=== RPC CHAIN ID ===
+=== RPC CHAIN ID CHECKER ===
 Enter RPC URL (supports both HTTP and WebSocket)
 
 Examples:
 - HTTP: https://mainnet.infura.io/v3/your-key
 - WebSocket: wss://mainnet.infura.io/ws/v3/your-key
+- Simplified: ethereum-rpc.publicnode.com
 
-RPC URL: https://ethereum-rpc.publicnode.com
+🌐 RPC URL: https://ethereum-rpc.publicnode.com
 
-Fetching chain ID via HTTP from: https://ethereum-rpc.publicnode.com
+🔍 Fetching chain ID from: https://ethereum-rpc.publicnode.com
 ✅ Chain ID: 1 (0x1)
 ```
 

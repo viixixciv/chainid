@@ -3,54 +3,73 @@ const axios = require("axios");
 const readline = require("readline");
 const WebSocket = require("ws");
 
+// Configuration
+const DEFAULT_TIMEOUT = 5000;
+const DEFAULT_PROTOCOL = "https://";
+
 async function getChainId(rpcUrl) {
   try {
     rpcUrl = rpcUrl.trim();
 
-    // Determine if it's WebSocket or HTTP
-    if (rpcUrl.startsWith("ws://") || rpcUrl.startsWith("wss://")) {
+    if (isWebSocket(rpcUrl)) {
       return await getChainIdViaWebSocket(rpcUrl);
-    } else {
-      // Add http:// if not present
-      if (!rpcUrl.startsWith("http")) {
-        rpcUrl = "http://" + rpcUrl;
-      }
-      return await getChainIdViaHttp(rpcUrl);
     }
+
+    // First try with proper protocol
+    const urlWithProtocol = addProtocol(rpcUrl);
+    return await getChainIdViaHttp(urlWithProtocol);
   } catch (error) {
-    console.error("❌ Error:", error.message);
+    console.error(`❌ Error: ${error.message}`);
     return null;
   }
 }
 
+function isWebSocket(url) {
+  return url.startsWith("ws://") || url.startsWith("wss://");
+}
+
+function addProtocol(url) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  return DEFAULT_PROTOCOL + url;
+}
+
 async function getChainIdViaHttp(rpcUrl) {
-  console.log(`\nFetching chain ID via HTTP from: ${rpcUrl}`);
+  console.log(`\n🔍 Fetching chain ID from: ${rpcUrl}`);
 
-  const response = await axios.post(
-    rpcUrl,
-    {
-      jsonrpc: "2.0",
-      method: "eth_chainId",
-      params: [],
-      id: 1,
-    },
-    {
-      timeout: 5000,
+  try {
+    const response = await axios.post(
+      rpcUrl,
+      {
+        jsonrpc: "2.0",
+        method: "eth_chainId",
+        params: [],
+        id: 1,
+      },
+      { timeout: DEFAULT_TIMEOUT }
+    );
+
+    if (!response.data?.result) {
+      throw new Error("No chain ID received");
     }
-  );
 
-  if (response.data?.result) {
     const chainId = parseInt(response.data.result, 16);
     console.log(`✅ Chain ID: ${chainId} (0x${chainId.toString(16)})`);
     return chainId;
-  } else {
-    console.log("❌ Failed to get chain ID");
-    return null;
+  } catch (error) {
+    // If HTTPS fails, try HTTP as fallback
+    if (rpcUrl.startsWith("https://")) {
+      console.log("⚠️  HTTPS failed, trying HTTP...");
+      const httpUrl = rpcUrl.replace("https://", "http://");
+      return await getChainIdViaHttp(httpUrl);
+    }
+    throw new Error(`Request failed: ${error.message}`);
   }
 }
 
 async function getChainIdViaWebSocket(wsUrl) {
-  console.log(`\nFetching chain ID via WebSocket from: ${wsUrl}`);
+  console.log(`\n🔍 Fetching chain ID from: ${wsUrl}`);
 
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(wsUrl);
@@ -64,12 +83,9 @@ async function getChainIdViaWebSocket(wsUrl) {
     const timeout = setTimeout(() => {
       ws.close();
       reject(new Error("WebSocket timeout"));
-    }, 5000);
+    }, DEFAULT_TIMEOUT);
 
-    ws.on("open", () => {
-      ws.send(JSON.stringify(request));
-    });
-
+    ws.on("open", () => ws.send(JSON.stringify(request)));
     ws.on("message", (data) => {
       try {
         const response = JSON.parse(data);
@@ -86,7 +102,6 @@ async function getChainIdViaWebSocket(wsUrl) {
         reject(e);
       }
     });
-
     ws.on("error", (error) => {
       clearTimeout(timeout);
       reject(error);
@@ -94,23 +109,30 @@ async function getChainIdViaWebSocket(wsUrl) {
   });
 }
 
+function displayWelcome() {
+  console.log(`
+=== RPC CHAIN ID CHECKER ===
+Enter RPC URL (supports both HTTP and WebSocket)
+
+Examples:
+- HTTP: https://mainnet.infura.io/v3/your-key
+- WebSocket: wss://mainnet.infura.io/ws/v3/your-key
+- Simplified: ethereum-rpc.publicnode.com
+`);
+}
+
 function main() {
+  displayWelcome();
+
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  console.log("=== RPC CHAIN ID ===");
-  console.log("Enter RPC URL (supports both HTTP and WebSocket)\n");
-  console.log("Examples:");
-  console.log("- HTTP: https://mainnet.infura.io/v3/your-key");
-  console.log("- WebSocket: wss://mainnet.infura.io/ws/v3/your-key\n");
-
-  rl.question("RPC URL: ", (url) => {
-    getChainId(url).finally(() => {
-      rl.close();
-      process.exit(0);
-    });
+  rl.question("🌐 RPC URL: ", async (url) => {
+    await getChainId(url);
+    rl.close();
+    process.exit(0);
   });
 }
 
