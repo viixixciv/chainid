@@ -31,12 +31,10 @@ function getChainIdViaWebSocket(url) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(url);
     const request = { jsonrpc: "2.0", method: "eth_chainId", params: [], id: 1 };
-
     const connectionTimeout = setTimeout(() => {
       ws.close();
       reject(new Error("WebSocket connection timed out"));
     }, TIMEOUT);
-
     ws.on("open", () => ws.send(JSON.stringify(request)));
     ws.on("error", (err) => {
       clearTimeout(connectionTimeout);
@@ -46,11 +44,8 @@ function getChainIdViaWebSocket(url) {
       clearTimeout(connectionTimeout);
       try {
         const response = JSON.parse(data);
-        if (response.result) {
-          resolve(parseInt(response.result, 16));
-        } else {
-          reject(new Error("Invalid WebSocket response"));
-        }
+        if (response.result) resolve(parseInt(response.result, 16));
+        else reject(new Error("Invalid WebSocket response"));
       } catch (e) {
         reject(e);
       } finally {
@@ -72,39 +67,45 @@ function showSpinner(message = "Fetching...") {
   };
 }
 
-(async () => {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  console.log(`
-🔗 RPC Chain ID Checker
-========================
-Enter RPC URL (supports http, https, ws, wss)
-`);
-
-  const urlInput = await new Promise((resolve) => {
-    rl.question("🌐 RPC URL: ", resolve);
-  });
-  rl.close();
-
+async function processRpcUrl(url) {
   const stopSpinner = showSpinner("Fetching Chain ID...");
-
   try {
-    const fullUrl = addProtocol(urlInput.trim());
+    const fullUrl = addProtocol(url.trim());
     const isWs = fullUrl.startsWith("ws");
-
     const chainId = isWs
       ? await getChainIdViaWebSocket(fullUrl)
       : await getChainIdViaHttp(fullUrl);
-
     stopSpinner();
     console.log(`✅ Success! Chain ID: ${chainId} (0x${chainId.toString(16)})`);
-
   } catch (error) {
     stopSpinner();
     console.error(`❌ Failed: ${error.message}`);
     process.exit(1);
+  }
+}
+
+(async () => {
+  const urlArgument = process.argv[2];
+
+  if (urlArgument) {
+    await processRpcUrl(urlArgument);
+  } else {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    console.log(`
+🔗 RPC Chain ID Checker
+========================
+Enter an RPC URL or run with an argument:
+e.g., chainid https://ethereum-rpc.publicnode.com
+`);
+
+    const urlInput = await new Promise((resolve) => {
+      rl.question("🌐 RPC URL: ", resolve);
+    });
+    rl.close();
+    await processRpcUrl(urlInput);
   }
 })();

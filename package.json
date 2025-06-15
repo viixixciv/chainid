@@ -1,6 +1,6 @@
 {
   "name": "@viixixciv/chainid",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "An elegant CLI tool to retrieve a blockchain's chainId from any RPC endpoint (supports HTTP/S and WebSocket).",
   "main": "index.js",
   "scripts": {
