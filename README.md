@@ -2,13 +2,13 @@
 A lightweight and elegant command-line tool to retrieve a blockchain's `chainId` from any RPC endpoint (supports both HTTP/S and WebSocket).
 
 ## Features
-✨ **Elegant Interface:** A clean, minimal UI with an interactive loading spinner for a better user experience.
-✔ **Dual-Protocol Support:** Seamlessly works with `http://`, `https://`, `ws://`, and `wss://` endpoints.
-🚀 **Smart Defaults:** Automatically prefixes URLs with `https://` if no protocol is specified.
-🔄 **Automatic Fallback:** If an `https://` connection fails, it automatically retries with `http://`.
-⏱️ **Timeout Protection:** Includes a 5-second timeout to prevent indefinite hanging.
-💻 **Clear Output:** Displays the Chain ID in both decimal and hexadecimal formats.
-⚙️ **Zero-Configuration:** No setup or API keys needed. Just run it.
+* ✨ **Elegant Interface:** A clean, minimal UI with an interactive loading spinner for a better user experience.
+* ✔ **Dual-Protocol Support:** Seamlessly works with `http://`, `https://`, `ws://`, and `wss://` endpoints.
+* 🚀 **Smart Defaults:** Automatically prefixes URLs with `https://` if no protocol is specified.
+* 🔄 **Automatic Fallback:** If an `https://` connection fails, it automatically retries with `http://`.
+* ⏱️ **Timeout Protection:** Includes a 5-second timeout to prevent indefinite hanging.
+* 💻 **Clear Output:** Displays the Chain ID in both decimal and hexadecimal formats.
+* ⚙️ **Zero-Configuration:** No setup or API keys needed. Just run it.
 
 ## Installation
 
